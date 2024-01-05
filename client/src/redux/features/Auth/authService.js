@@ -1,5 +1,4 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 
 const token = localStorage.getItem("token");
 
@@ -26,11 +25,11 @@ const register = async (userData) => {
 const login = async (userData) => {
   try {
     const response = await instance.post("/login", userData);
-    
+
     // Update the token in the Axios instance headers
     const newToken = response.data.token;
-    instance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-    
+    instance.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+
     return response;
   } catch (error) {
     return handleErrorResponse(error);
@@ -47,11 +46,22 @@ const getStatus = async () => {
   }
 };
 
+// profile
+
+const profile = async () => {
+  try {
+    const response = await instance.get("/profile");
+    return response;
+  } catch (error) {
+    return handleErrorResponse(error);
+  }
+};
+
 // Logout
 const logout = async () => {
   try {
     // Clear the token in the Axios instance headers
-    delete instance.defaults.headers.common['Authorization'];
+    delete instance.defaults.headers.common["Authorization"];
 
     const response = await instance.get("/logout");
     return response;
@@ -78,6 +88,7 @@ const authService = {
   register,
   login,
   getStatus,
+  profile,
   logout,
 };
 

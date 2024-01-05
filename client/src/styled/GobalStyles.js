@@ -1,4 +1,5 @@
 // globalStyles.js
+import { motion } from "framer-motion";
 import { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
@@ -18,6 +19,9 @@ const GlobalStyle = createGlobalStyle`
     background: #eff6ff;
     min-height: 100vh;
     min-width: 100vw;
+    ::-webkit-scrollbar {
+    display: none;
+}
 }
 `;
 

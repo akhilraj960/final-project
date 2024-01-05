@@ -5,13 +5,19 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/features/Auth/authSlice";
 const Header = () => {
-  const { isLoggedIn } = useSelector((state) => state.auth);
+  const { isLoggedIn, user } = useSelector((state) => state.auth);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleLogout = () => {
     dispatch(logout());
+  };
+
+  const hover = {
+    scale: 1.2,
+    transition: { duration: 0.3 },
+    // color: "gray",
   };
 
   return (
@@ -24,13 +30,15 @@ const Header = () => {
         <NavLink to={"/"}>Home</NavLink>
         {!isLoggedIn ? (
           <>
-            <LoginOrRegister></LoginOrRegister>
-            {/* <NavLink to={"/login"}>Login</NavLink>
-            <NavLink to={"/register"}>Register</NavLink> */}
+            <NavLink to={"/login"}>Login</NavLink>
+            <NavLink to={"/register"}>Register</NavLink>
           </>
         ) : (
           <NavLink onClick={handleLogout}>Logout</NavLink>
         )}
+        {isLoggedIn && user?.role === "admin" ? (
+          <NavLink to={"/admin"}>Admin View</NavLink>
+        ) : null}
       </Nav>
     </StyledHeader>
   );
@@ -67,7 +75,5 @@ const NavLink = styled(motion(Link))`
   padding: 0.5rem 0.8rem;
   color: white;
 `;
-
-const LoginOrRegister = styled(motion.span)``;
 
 export default Header;

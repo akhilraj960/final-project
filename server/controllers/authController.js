@@ -17,8 +17,8 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hashSync(password, salt);
 
     const user = new User({
-      name: name,
-      email: email,
+      name,
+      email,
       password: hashedPassword,
     });
 
@@ -28,7 +28,7 @@ const register = async (req, res) => {
     const userData = { _id, name, email, role };
 
     const token = jwt.sign(
-      { id: _id, email: email },
+      { id: _id, email },
       process.env.JWT_SECRET,
       { expiresIn: "1h" } // Token expires in 1 hour
     );
@@ -43,7 +43,7 @@ const register = async (req, res) => {
     console.error("Error during registration:", error);
     return res
       .status(500)
-      .json({ success: false, error: "Internal server error" });
+      .json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -67,7 +67,7 @@ const login = async (req, res) => {
     const userData = { _id, name: user.name, email, role };
 
     const token = jwt.sign(
-      { id: _id, email: email },
+      { id: _id, email },
       process.env.JWT_SECRET,
       { expiresIn: "1h" } // Token expires in 1 hour
     );
@@ -82,7 +82,7 @@ const login = async (req, res) => {
     console.error("Error during login:", error);
     return res
       .status(500)
-      .json({ success: false, error: "Internal server error" });
+      .json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -93,19 +93,41 @@ const getStatus = async (req, res) => {
     const token = matches ? matches[1] : null;
 
     if (!token) {
-      return res.json({ success: false, message: "login again" });
+      return res.json({ success: false, message: "Login again" });
     }
 
-    const isTrue = jwt.verify(token, process.env.JWT_SECRET);
+    jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
+      if (err) {
+        console.error("Error during token verification:", err);
+        return res.json({ success: false, message: "Login again" });
+      }
 
-    if (!isTrue) {
-      return res.json({ success: false, message: "login again" });
-    }
-
-    return res.json({ success: true, message: "success" });
+      // Add logic based on the decoded token, if needed
+      return res.json({ success: true, message: "Success" });
+    });
   } catch (error) {
-    console.log(error);
-    return res.json({ error });
+    console.error("Error during token verification:", error);
+    return res.json({ success: false, message: "Login again" });
+  }
+};
+
+const profile = async (req, res) => {
+  try {
+    const { id } = req.body.user;
+    const user = await User.findById(id).select("-password");
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    return res.json({ success: true, user });
+  } catch (error) {
+    console.error("Error during profile retrieval:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -117,5 +139,6 @@ module.exports = {
   register,
   login,
   getStatus,
+  profile,
   logout,
 };

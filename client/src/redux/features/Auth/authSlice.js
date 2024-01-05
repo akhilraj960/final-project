@@ -63,6 +63,18 @@ export const getStatus = createAsyncThunk(
     }
   }
 );
+// GetProfile
+export const profile = createAsyncThunk("auth/profile", async (_, thunkAPI) => {
+  try {
+    return await authService.profile();
+  } catch (error) {
+    const message =
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      error.toString();
+    return thunkAPI.rejectWithValue(message);
+  }
+});
 
 export const logout = createAsyncThunk(
   "auth/logout",
@@ -124,7 +136,7 @@ const authSlice = createSlice({
         state.isSuccess = true;
         state.isLoggedIn = true;
         state.user = action.payload.data.userData;
-        console.log(state.user)
+        console.log(state.user);
         toast.success(action.payload.data.message);
         localStorage.setItem("token", action.payload.data.token);
       })
@@ -150,7 +162,14 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = null;
         state.message = action.payload;
-        console.log(action.payload);
+        // console.log(action.payload.data);
+      })
+      //GetProfile
+      .addCase(profile.fulfilled, (state, action) => {
+        state.user = action.payload.data.user;
+      })
+      .addCase(profile.rejected, (state, action) => {
+        state.user = null;
       })
 
       // Logout
@@ -164,6 +183,7 @@ const authSlice = createSlice({
         state.isLoggedIn = false;
         state.user = null;
         state.message = action.payload;
+        RESET_AUTH();
         toast.success(action.payload.data.message);
         localStorage.setItem("token", "");
       })

@@ -17,7 +17,15 @@ const Input = ({ type, name, onChange, value, label }) => {
           name={name}
           value={value}
           type={
-            type === "password" ? (showPassword ? "text" : "password") : "text"
+            type === "password"
+              ? showPassword
+                ? "text"
+                : "password"
+              : type === "file"
+              ? "file"
+              : type === "number" // Corrected this line
+              ? "number"
+              : "text"
           }
           onChange={onChange}
         />
@@ -39,7 +47,7 @@ const TextField = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0px;
-  width: 260px;
+  min-width: 260px;
   background-color: transparent;
 `;
 
